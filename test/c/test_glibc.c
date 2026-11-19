@@ -387,4 +387,9 @@ drand48() and erand48 in lines %d and %d produce different results\n",
 }
 
 #define TEST_FUNCTION do_test()
-#include "../test-skeleton.c"
+/* #include "../test-skeleton.c" */
+
+int main(void)
+{
+    return TEST_FUNCTION;
+}
