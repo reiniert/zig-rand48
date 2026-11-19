@@ -17,36 +17,37 @@ pub fn build(b: *std.Build) void {
     });
     b.installArtifact(lib);
 
-    // Pure C application linked with the pure Zig lib as a drop-in
-    const lib_tests_c_zig = b.addExecutable(.{
-        .name = "test-c-zig",
+    // OpenGroup C example linked with the pure Zig lib as a drop-in
+    const lib_tests_c_opengroup = b.addExecutable(.{
+        .name = "test-c-opengroup",
         .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
             .link_libc = true,
         }),
     });
-    lib_tests_c_zig.root_module.addCSourceFile(.{
-        .file = b.path("src/rand48test.c"),
+    lib_tests_c_opengroup.root_module.addCSourceFile(.{
+        .file = b.path("test/c/test_opengroup.c"),
         .flags = &[_][]const u8{},
     });
-    lib_tests_c_zig.root_module.linkLibrary(lib);
-    b.installArtifact(lib_tests_c_zig);
+    lib_tests_c_opengroup.root_module.linkLibrary(lib);
+    b.installArtifact(lib_tests_c_opengroup);
 
-    // The same pure C application linked with libc, as a reference implementation
-    const lib_tests_c_libc = b.addExecutable(.{
-        .name = "test-c-libc",
+    // Glibc test linked with the pure Zig lib as a drop-in
+    const lib_tests_c_glibc = b.addExecutable(.{
+        .name = "test-c-glibc",
         .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
             .link_libc = true,
         }),
     });
-    lib_tests_c_libc.root_module.addCSourceFile(.{
-        .file = b.path("src/rand48test.c"),
+    lib_tests_c_glibc.root_module.addCSourceFile(.{
+        .file = b.path("test/c/test_glibc.c"),
         .flags = &[_][]const u8{},
     });
-    b.installArtifact(lib_tests_c_libc);
+    lib_tests_c_glibc.root_module.linkLibrary(lib);
+    b.installArtifact(lib_tests_c_glibc);
 
     const install_docs = b.addInstallDirectory(.{
         .source_dir = lib.getEmittedDocs(),
@@ -66,9 +67,9 @@ pub fn build(b: *std.Build) void {
     const run_test_step = b.step("test", "Run library tests");
     run_test_step.dependOn(&run_tests.step);
 
-    const run_lib_tests_c_libc = b.addRunArtifact(lib_tests_c_libc);
-    run_test_step.dependOn(&run_lib_tests_c_libc.step);
+    const run_lib_tests_c_opengroup = b.addRunArtifact(lib_tests_c_opengroup);
+    run_test_step.dependOn(&run_lib_tests_c_opengroup.step);
 
-    const run_lib_tests_c_zig = b.addRunArtifact(lib_tests_c_zig);
-    run_test_step.dependOn(&run_lib_tests_c_zig.step);
+    const run_lib_tests_c_glibc = b.addRunArtifact(lib_tests_c_glibc);
+    run_test_step.dependOn(&run_lib_tests_c_glibc.step);
 }
