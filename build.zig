@@ -7,6 +7,7 @@ pub fn build(b: *std.Build) void {
         .root_source_file = b.path("src/rand48.zig"),
         .target = target,
         .optimize = optimize,
+        .link_libc = true,
     });
 
     const lib = b.addLibrary(.{
@@ -22,7 +23,7 @@ pub fn build(b: *std.Build) void {
         .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
-            .link_libc = false,
+            .link_libc = true,
         }),
     });
     lib_tests_c_zig.root_module.addCSourceFile(.{

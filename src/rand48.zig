@@ -226,7 +226,7 @@ const Lcg = struct {
 /// - They are all namespaced functions, not member functions of the struct.
 ///   - They are therefore intended to be invoked like `RandPosixC.function_name(...)`.
 /// - They are exported and accessible from a POSIX-compliant C applications, as a drop-in.
-pub const RandUnderPosix = struct {
+pub const RandUnderPosixC = struct {
 
     // Private global instance of the Zig Rand48 state.
     // Note that this is shared across all users of this class in the same process.
@@ -356,7 +356,7 @@ pub const RandUnderPosix = struct {
     /// Note that the provided seed16v pointer should be considered
     /// `const`, but we stick with the original POSIX definition here.
     pub export fn lcong48(param: *[7]c_ushort) void {
-        const lcgState = RandUnderPosix.lcgStateFromShorts(param.*);
+        const lcgState = RandUnderPosixC.lcgStateFromShorts(param.*);
         _zrand.initState(lcgState);
     }
 };
@@ -364,12 +364,12 @@ pub const RandUnderPosix = struct {
 // This is needed to ensure that the RandPosixC struct is analyzed at compile time
 // and the symbols in the struct are exported at all.
 comptime {
-    _ = RandUnderPosix;
+    _ = RandUnderPosixC;
 }
 
 /// An alternative struct for using the Zig-idiomatic interface to the rand48 family of functions,
 /// with an implementation that forwards call to the standard POSIX C rand48 functions.
-pub const RandOnPosix = struct {
+pub const RandOnPosixC = struct {
     // For the sake of simplicity, define the function prototypes manually here.
     // See https://pubs.opengroup.org/onlinepubs/9799919799/functions/drand48.html
     extern "c" fn drand48() f64;
@@ -383,22 +383,22 @@ pub const RandOnPosix = struct {
     extern "c" fn srand48(seedval: c_long) void;
 
     /// `drand48` equivalent: returns a floating-point number in [0.0, 1.0).
-    pub fn nextFloat(_: *RandOnPosix) f64 {
+    pub fn nextFloat(_: *RandOnPosixC) f64 {
         return drand48();
     }
 
     /// `erand48` equivalent: returns a floating-point number in [0.0, 1.0) from a given state
     /// and updates the contents of the given bits with the subsequent LCG state,
     /// without updating the internal LCG state itself.
-    pub fn nextFloatWithBits(_: RandOnPosix, bits: *u48) f64 {
-        var xsubi = RandUnderPosix.ushortsFromU48(bits.*);
+    pub fn nextFloatWithBits(_: RandOnPosixC, bits: *u48) f64 {
+        var xsubi = RandUnderPosixC.ushortsFromU48(bits.*);
         const result = erand48(&xsubi);
-        bits.* = RandUnderPosix.u48FromUshorts(xsubi);
+        bits.* = RandUnderPosixC.u48FromUshorts(xsubi);
         return result;
     }
 
     /// `lrand48` equivalent: returns an unsigned integer in [0, 2³¹).
-    pub fn nextUnsigned(_: *RandOnPosix) u31 {
+    pub fn nextUnsigned(_: *RandOnPosixC) u31 {
         const result = lrand48();
         return @intCast(result);
     }
@@ -406,16 +406,16 @@ pub const RandOnPosix = struct {
     /// `nrand48` equivalent: returns an unsigned integer in [0, 2³¹) from a given state
     /// and updates the contents of the given bits with the subsequent LCG state,
     /// without updating the internal LCG state itself.
-    pub fn nextUnsignedWithBits(_: RandOnPosix, bits: *u48) u31 {
-        var xsubi = RandUnderPosix.ushortsFromU48(bits.*);
+    pub fn nextUnsignedWithBits(_: RandOnPosixC, bits: *u48) u31 {
+        var xsubi = RandUnderPosixC.ushortsFromU48(bits.*);
         const result = nrand48(&xsubi);
-        bits.* = RandUnderPosix.u48FromUshorts(xsubi);
+        bits.* = RandUnderPosixC.u48FromUshorts(xsubi);
         return @intCast(result);
     }
 
     /// `mrand48` equivalent: returns a signed integer in [-2³¹, 2³¹)
     ///  and updates the internal LCG state accordingly.
-    pub fn nextSigned(_: *RandOnPosix) i32 {
+    pub fn nextSigned(_: *RandOnPosixC) i32 {
         const result = mrand48();
         return @intCast(result);
     }
@@ -423,31 +423,31 @@ pub const RandOnPosix = struct {
     /// `jrand48` equivalent: returns a signed integer in [-2³¹, 2³¹) from a given state
     /// and updates the contents of the given bits with the subsequent LCG state,
     /// without updating the internal LCG state itself.
-    pub fn nextSignedWithBits(_: RandOnPosix, bits: *u48) i32 {
-        var xsubi = RandUnderPosix.ushortsFromU48(bits.*);
+    pub fn nextSignedWithBits(_: RandOnPosixC, bits: *u48) i32 {
+        var xsubi = RandUnderPosixC.ushortsFromU48(bits.*);
         const result = jrand48(&xsubi);
-        bits.* = RandUnderPosix.u48FromUshorts(xsubi);
+        bits.* = RandUnderPosixC.u48FromUshorts(xsubi);
         return @intCast(result);
     }
 
     /// `lcong48` equivalent: sets the LCG state, multiplier, and addend.
-    pub fn initState(_: *RandOnPosix, state: LcgState) void {
-        const param_shorts = RandUnderPosix.shortsFromLcgState(state);
+    pub fn initState(_: *RandOnPosixC, state: LcgState) void {
+        const param_shorts = RandUnderPosixC.shortsFromLcgState(state);
         lcong48(&param_shorts);
     }
 
     /// `srand48` equivalent: initializes the generator with a given value
     /// and resets the multiplier and addend to their default values.
-    pub fn initRand(_: *RandOnPosix, value: u32) void {
+    pub fn initRand(_: *RandOnPosixC, value: u32) void {
         srand48(value);
     }
 
     /// `seed48` equivalent: sets the LCG state and resets the multiplier and addend
     /// and returns the previous state.
-    pub fn initSeed(_: *RandOnPosix, bits: u48) u48 {
-        const seed_shorts = RandUnderPosix.shortsFromU48(bits);
+    pub fn initSeed(_: *RandOnPosixC, bits: u48) u48 {
+        const seed_shorts = RandUnderPosixC.shortsFromU48(bits);
         const seed_ptr = seed48(&seed_shorts);
-        return RandUnderPosix.u48FromUshorts(seed_ptr.*);
+        return RandUnderPosixC.u48FromUshorts(seed_ptr.*);
     }
 };
 
@@ -546,7 +546,7 @@ test "Tests equivalent to the examples on the OpenGroup page" {
 
     // The Zig-style Rand interface with POSIX implementation
     // It relies on the libc implememtation and does not maintain any state itself.
-    var randOnPosix = RandOnPosix{};
+    var randOnPosix = RandOnPosixC{};
 
     // Zig-style erand cases with POSIX implementation
     bits = Rand.u48FromU16s(erand_start);
@@ -578,22 +578,22 @@ test "Tests equivalent to the examples on the OpenGroup page" {
 
     xsubi = Helper.ushortsFromU16s(erand_start);
     for (erand_cases) |expected| {
-        const d = RandUnderPosix.erand48(&xsubi);
+        const d = RandUnderPosixC.erand48(&xsubi);
         try std.testing.expect(Helper.isEqualIsh(d, expected.val));
-        try std.testing.expect(Helper.isEqualIsh(RandUnderPosix.u48FromUshorts(xsubi), expected.bits));
+        try std.testing.expect(Helper.isEqualIsh(RandUnderPosixC.u48FromUshorts(xsubi), expected.bits));
     }
 
     xsubi = Helper.ushortsFromU16s(jrand_start);
     for (jrand_cases) |expected| {
-        const j = RandUnderPosix.jrand48(&xsubi);
+        const j = RandUnderPosixC.jrand48(&xsubi);
         try std.testing.expect(Helper.isEqualIsh(j, expected.val));
-        try std.testing.expect(Helper.isEqualIsh(RandUnderPosix.u48FromUshorts(xsubi), expected.bits));
+        try std.testing.expect(Helper.isEqualIsh(RandUnderPosixC.u48FromUshorts(xsubi), expected.bits));
     }
 
     xsubi = Helper.ushortsFromU16s(nrand_start);
     for (nrand_cases) |expected| {
-        const n = RandUnderPosix.nrand48(&xsubi);
+        const n = RandUnderPosixC.nrand48(&xsubi);
         try std.testing.expect(Helper.isEqualIsh(n, expected.val));
-        try std.testing.expect(Helper.isEqualIsh(RandUnderPosix.u48FromUshorts(xsubi), expected.bits));
+        try std.testing.expect(Helper.isEqualIsh(RandUnderPosixC.u48FromUshorts(xsubi), expected.bits));
     }
 }
