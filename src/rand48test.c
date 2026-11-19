@@ -1,18 +1,5 @@
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
-
-/*
-static void print_dres(double d, const unsigned short xsubi[3])
-{
-    printf("d = %f, xsubi = {%u, %u, %u}\n", d, xsubi[0], xsubi[1], xsubi[2]);
-}
-
-static void print_ires(long i, const unsigned short xsubi[3])
-{
-    printf("i = %ld, xsubi = {%u, %u, %u}\n", i, xsubi[0], xsubi[1], xsubi[2]);
-}
-*/
 
 int main(void)
 {

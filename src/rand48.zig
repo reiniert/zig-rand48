@@ -5,9 +5,10 @@
 //! Congruential Generator (LCG) based on 48-bit arithmetic internally.
 //!
 //! `rand48` exposes the following:
-//! - [`Rand`](#Rand): The main struct for using the Zig-idiomatic interface
-//! - [`LcgState`](#LcgState): A struct for holding and passing the state of the LCG
-//! - [`RandPosixC`](#RandPosixC): A set of functions to provide a C ABI for the POSIX functions
+//! - [`Rand`](#Rand): The main struct for using the Zig-idiomatic interface.
+//! - [`LcgState`](#LcgState): A struct for holding and passing the state of the LCG.
+//! - [`RandOverPosixC`](#RandOverPosixC): An implementation of the Zig-idiomatic interface relying on the platform's implementation of the `rand48` functions.
+//! - [`RandUnderPosixC`](#RandUnderPosixC): A struct containing functions exposing the native Zig implementation with a C ABI for the POSIX functions.
 //!
 //! The implemented behavior is as prescribed by POSIX, with the following remarks:
 //! - Its implementation is not thread-safe.
