@@ -10,6 +10,7 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
 
+    // The library itself
     const lib = b.addLibrary(.{
         .name = "rand48",
         .root_module = root_module,
@@ -17,6 +18,17 @@ pub fn build(b: *std.Build) void {
     });
     b.installArtifact(lib);
 
+    // Zig-based functional tests
+    const lib_tests_zig = b.addTest(.{
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("test/zig/test.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+    lib_tests_zig.root_module.addImport("rand48", root_module);
+
+    // C-based tests
     // OpenGroup C example linked with the pure Zig lib as a drop-in
     const lib_tests_c_opengroup = b.addExecutable(.{
         .name = "test-c-opengroup",
@@ -63,13 +75,13 @@ pub fn build(b: *std.Build) void {
     const build_test_step = b.step("build-test", "Compile library tests without running");
     build_test_step.dependOn(&install_tests.step);
 
-    const run_tests = b.addRunArtifact(lib_tests);
-    const run_test_step = b.step("test", "Run library tests");
-    run_test_step.dependOn(&run_tests.step);
+    const run_zig_tests = b.addRunArtifact(lib_tests_zig);
+    const run_all_tests_step = b.step("test", "Run all library tests");
+    run_all_tests_step.dependOn(&run_zig_tests.step);
 
     const run_lib_tests_c_opengroup = b.addRunArtifact(lib_tests_c_opengroup);
-    run_test_step.dependOn(&run_lib_tests_c_opengroup.step);
+    run_all_tests_step.dependOn(&run_lib_tests_c_opengroup.step);
 
     const run_lib_tests_c_glibc = b.addRunArtifact(lib_tests_c_glibc);
-    run_test_step.dependOn(&run_lib_tests_c_glibc.step);
+    run_all_tests_step.dependOn(&run_lib_tests_c_glibc.step);
 }

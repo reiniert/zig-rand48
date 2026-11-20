@@ -1,3 +1,3 @@
-The files in this folder were copied:
-- `test_opengroup.c` from the Open Group Base Specifications Issue 8: examples on the page [`drand48`](https://pubs.opengroup.org/onlinepubs/9799919799/functions/drand48.html)
-- `test_glibc.c` from the GNU C Library master sources. release v2.44: [`stdlib/test-rand48.c`](https://sourceware.org/git/?p=glibc.git;a=blob;f=stdlib/tst-rand48.c;hb=refs/tags/glibc-2.44), with a minor modification to allow for standalone compilation.
+The files in this folder were copied from the following locations:
+- `test_opengroup.c` from the Open Group Base Specifications Issue 8:the Examples section on [`drand48`](https://pubs.opengroup.org/onlinepubs/9799919799/functions/drand48.html)
+- `test_glibc.c` from the GNU C Library master sources. release v2.44, with a minor modification to allow for standalone compilation: [`stdlib/test-rand48.c`](https://sourceware.org/git/?p=glibc.git;a=blob;f=stdlib/tst-rand48.c;hb=refs/tags/glibc-2.44)
