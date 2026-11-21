@@ -37,7 +37,7 @@ int main()
     John Burkardt
 */
 {
-    /* timestamp(); */
+    timestamp();
     printf("\n");
     printf("rand48_test():\n");
     printf("  C version:\n");
@@ -59,7 +59,7 @@ int main()
     printf("rand48_test():\n");
     printf("  Normal end of execution.\n");
     printf("\n");
-    /* timestamp(); */
+    timestamp();
 
     return 0;
 }
@@ -923,7 +923,8 @@ void timestamp()
 
     strftime(time_buffer, TIME_SIZE, "%d %B %Y %I:%M:%S %p", tm);
 
-    printf("%s\n", time_buffer);
+    /* This was removed to simplify comparing to expected output */
+    /* printf("%s\n", time_buffer); */
 
     return;
 #undef TIME_SIZE

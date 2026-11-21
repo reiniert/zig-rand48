@@ -20,7 +20,7 @@
 //!   - The idea is that linking with this library is all that is needed.
 //!
 //! This is a toy project, for educational purposes only.
-const std = @import("std");
+const builtin = @import("builtin");
 
 /// The main struct for using the Zig-idiomatic interface to the rand48 family of functions,
 /// with a pure Zig-native implementation.
@@ -368,8 +368,9 @@ comptime {
 }
 
 /// An alternative struct for using the Zig-idiomatic interface to the rand48 family of functions,
-/// that forwards all calls to the platform's standard POSIX C rand48 implementation.
-pub const RandOnPosixC = struct {
+/// that forwards all calls to the platform's standard POSIX C rand48 implementation.<br>
+/// This class is not available on Windows since it does not have the POSIX rand48 functions.
+pub const RandOnPosixC = if (builtin.os.tag != .windows) struct {
     // For the sake of simplicity, define the function prototypes manually here.
     // See https://pubs.opengroup.org/onlinepubs/9799919799/functions/drand48.html
     extern "c" fn drand48() f64;

@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const rand48 = @import("rand48");
 
 test "Tests equivalent to the examples on the OpenGroup page" {
@@ -92,59 +93,79 @@ test "Tests equivalent to the examples on the OpenGroup page" {
     var rand = Rand{};
     // The bits variable is reused across all Zig-style tests
     var bits: u48 = undefined;
-
-    // The Zig-style Rand interface with POSIX implementation
-    // It relies on the libc implememtation and does not maintain any state itself.
-    var randOnPosix = RandOnPosixC{};
-    // The bits variable is reused across all Zig-style tests with POSIX implementation
-    var bits_posix: u48 = undefined;
-
-    // The POSIX-C-based implementation need xsubi arrays as opposed to u48 values
+    // The POSIX-C-based interface needs xsubi arrays as opposed to u48 values
     // The xsubi array is reused across all POSIX-C-based tests
     var xsubi: [3]c_ushort = undefined;
 
+    // Floating point tests for erand48
     bits = Rand.u48FromU16s(erand_vectors.initial_bits);
-    bits_posix = bits;
     xsubi = RandUnderPosixC.ushortsFromU48(bits);
     for (erand_vectors.cases) |expected| {
         const d = rand.nextFloatWithBits(&bits);
         try std.testing.expect(Helper.isEqualIsh(d, expected.value));
         try std.testing.expect(Helper.isEqualIsh(bits, expected.bits));
-        const d_posix = randOnPosix.nextFloatWithBits(&bits_posix);
-        try std.testing.expect(Helper.isEqualIsh(d_posix, expected.value));
-        try std.testing.expect(Helper.isEqualIsh(bits_posix, expected.bits));
         const d_c = RandUnderPosixC.erand48(&xsubi);
         try std.testing.expect(Helper.isEqualIsh(d_c, expected.value));
         try std.testing.expect(Helper.isEqualIsh(RandUnderPosixC.u48FromUshorts(xsubi), expected.bits));
     }
+    if (comptime builtin.os.tag != .windows) {
+        // The Zig-style Rand interface with POSIX implementation
+        // It relies on the libc implememtation and does not maintain any state itself.
+        var randOnPosix = RandOnPosixC{};
+        // The bits variable is reused across all Zig-style tests with POSIX implementation
+        var bits_posix: u48 = Rand.u48FromU16s(erand_vectors.initial_bits);
+        for (erand_vectors.cases) |expected| {
+            const d_posix = randOnPosix.nextFloatWithBits(&bits_posix);
+            try std.testing.expect(Helper.isEqualIsh(d_posix, expected.value));
+            try std.testing.expect(Helper.isEqualIsh(bits_posix, expected.bits));
+        }
+    }
 
+    // Signed integer tests for jrand48
     bits = Rand.u48FromU16s(jrand_vectors.initial_bits);
-    bits_posix = bits;
     xsubi = RandUnderPosixC.ushortsFromU48(bits);
     for (jrand_vectors.cases) |expected| {
         const j = rand.nextSignedWithBits(&bits);
         try std.testing.expect(Helper.isEqualIsh(j, expected.value));
         try std.testing.expect(Helper.isEqualIsh(bits, expected.bits));
-        const j_posix = randOnPosix.nextSignedWithBits(&bits_posix);
-        try std.testing.expect(Helper.isEqualIsh(j_posix, expected.value));
-        try std.testing.expect(Helper.isEqualIsh(bits_posix, expected.bits));
         const j_c = RandUnderPosixC.jrand48(&xsubi);
         try std.testing.expect(Helper.isEqualIsh(j_c, expected.value));
         try std.testing.expect(Helper.isEqualIsh(RandUnderPosixC.u48FromUshorts(xsubi), expected.bits));
     }
+    if (comptime builtin.os.tag != .windows) {
+        // The Zig-style Rand interface with POSIX implementation
+        // It relies on the libc implememtation and does not maintain any state itself.
+        var randOnPosix = RandOnPosixC{};
+        // The bits variable is reused across all Zig-style tests with POSIX implementation
+        var bits_posix: u48 = Rand.u48FromU16s(jrand_vectors.initial_bits);
+        for (jrand_vectors.cases) |expected| {
+            const j_posix = randOnPosix.nextSignedWithBits(&bits_posix);
+            try std.testing.expect(Helper.isEqualIsh(j_posix, expected.value));
+            try std.testing.expect(Helper.isEqualIsh(bits_posix, expected.bits));
+        }
+    }
 
+    // Unsigned integer tests for nrand48
     bits = Rand.u48FromU16s(nrand_vectors.initial_bits);
-    bits_posix = bits;
     xsubi = RandUnderPosixC.ushortsFromU48(bits);
     for (nrand_vectors.cases) |expected| {
         const n = rand.nextUnsignedWithBits(&bits);
         try std.testing.expect(Helper.isEqualIsh(n, expected.value));
         try std.testing.expect(Helper.isEqualIsh(bits, expected.bits));
-        const n_posix = randOnPosix.nextUnsignedWithBits(&bits_posix);
-        try std.testing.expect(Helper.isEqualIsh(n_posix, expected.value));
-        try std.testing.expect(Helper.isEqualIsh(bits_posix, expected.bits));
         const n_c = RandUnderPosixC.nrand48(&xsubi);
         try std.testing.expect(Helper.isEqualIsh(n_c, expected.value));
         try std.testing.expect(Helper.isEqualIsh(RandUnderPosixC.u48FromUshorts(xsubi), expected.bits));
+    }
+    if (comptime builtin.os.tag != .windows) {
+        // The Zig-style Rand interface with POSIX implementation
+        // It relies on the libc implememtation and does not maintain any state itself.
+        var randOnPosix = RandOnPosixC{};
+        // The bits variable is reused across all Zig-style tests with POSIX implementation
+        var bits_posix: u48 = Rand.u48FromU16s(nrand_vectors.initial_bits);
+        for (nrand_vectors.cases) |expected| {
+            const n_posix = randOnPosix.nextUnsignedWithBits(&bits_posix);
+            try std.testing.expect(Helper.isEqualIsh(n_posix, expected.value));
+            try std.testing.expect(Helper.isEqualIsh(bits_posix, expected.bits));
+        }
     }
 }

@@ -29,6 +29,12 @@ pub fn build(b: *std.Build) void {
     lib_tests_zig.root_module.addImport("rand48", root_module);
 
     // C-based functional tests
+    // Windows does not have the rand48 declarations, so add our include file
+    const c_flags: []const []const u8 = if (target.result.os.tag == .windows)
+        &[_][]const u8{ "-include", "test/c/windows_rand48.h" }
+    else
+        &[_][]const u8{};
+
     // OpenGroup C example linked with the pure Zig lib as a drop-in
     const lib_tests_c_opengroup = b.addExecutable(.{
         .name = "test-c-opengroup",
@@ -40,7 +46,7 @@ pub fn build(b: *std.Build) void {
     });
     lib_tests_c_opengroup.root_module.addCSourceFile(.{
         .file = b.path("test/c/test_opengroup.c"),
-        .flags = &[_][]const u8{},
+        .flags = c_flags,
     });
     lib_tests_c_opengroup.root_module.linkLibrary(lib);
     b.installArtifact(lib_tests_c_opengroup);
@@ -56,7 +62,7 @@ pub fn build(b: *std.Build) void {
     });
     lib_tests_c_glibc.root_module.addCSourceFile(.{
         .file = b.path("test/c/test_glibc.c"),
-        .flags = &[_][]const u8{},
+        .flags = c_flags,
     });
     lib_tests_c_glibc.root_module.linkLibrary(lib);
     b.installArtifact(lib_tests_c_glibc);
@@ -72,7 +78,7 @@ pub fn build(b: *std.Build) void {
     });
     lib_tests_c_burkardt.root_module.addCSourceFile(.{
         .file = b.path("test/c/test_burkardt.c"),
-        .flags = &[_][]const u8{},
+        .flags = c_flags,
     });
     lib_tests_c_burkardt.root_module.linkLibrary(lib);
     b.installArtifact(lib_tests_c_burkardt);
