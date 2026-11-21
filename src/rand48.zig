@@ -237,16 +237,16 @@ pub const RandUnderPosixC = struct {
     pub fn u48FromUshorts(ushorts: [3]c_ushort) u48 {
         // Per the spec, we need the low-order 16 bits of each value
         var result: u48 = @as(u16, @truncate(ushorts[2]));
-        result = (result << 16) + @as(u16, @truncate(ushorts[1]));
-        result = (result << 16) + @as(u16, @truncate(ushorts[0]));
+        result = (result << 16) | @as(u16, @truncate(ushorts[1]));
+        result = (result << 16) | @as(u16, @truncate(ushorts[0]));
         return result;
     }
 
     /// Helper function for working with 48-bit integers instead of ushort arrays.
     pub fn ushortsFromU48(state: u48) [3]c_ushort {
         // The spec prescribes that only the lowest 16 bits should be set
-        return [3]c_ushort{
-            @as(u16, @truncate(state >> 0)),
+        return .{
+            @as(u16, @truncate(state)),
             @as(u16, @truncate(state >> 16)),
             @as(u16, @truncate(state >> 32)),
         };
@@ -256,7 +256,7 @@ pub const RandUnderPosixC = struct {
     fn lcgStateFromShorts(param: [7]c_ushort) LcgState {
         const bits = u48FromUshorts(param[0..3].*);
         const a = u48FromUshorts(param[3..6].*);
-        const c: u16 = @intCast(param[6] & 0xFFFF);
+        const c: u16 = @truncate(param[6]);
         return .{ .bits = bits, .a = a, .c = c };
     }
 
@@ -345,7 +345,7 @@ pub const RandUnderPosixC = struct {
     /// Sets the internal LCG state based on the given seed value.
     pub export fn srand48(seedval: c_long) void {
         // Only take the 32 low-order bits, as prescribed
-        const zval: u32 = @intCast(seedval & 0xFFFFFFFF);
+        const zval: u32 = @bitCast(@as(i32, @truncate(seedval)));
         _zrand.initRand(zval);
     }
 
