@@ -37,7 +37,7 @@ int main()
     John Burkardt
 */
 {
-    timestamp();
+    /* timestamp(); */
     printf("\n");
     printf("rand48_test():\n");
     printf("  C version:\n");
@@ -59,7 +59,7 @@ int main()
     printf("rand48_test():\n");
     printf("  Normal end of execution.\n");
     printf("\n");
-    timestamp();
+    /* timestamp(); */
 
     return 0;
 }

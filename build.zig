@@ -18,7 +18,7 @@ pub fn build(b: *std.Build) void {
     });
     b.installArtifact(lib);
 
-    // Zig-based functional tests
+    // Pure Zig-based functional tests
     const lib_tests_zig = b.addTest(.{
         .root_module = b.createModule(.{
             .root_source_file = b.path("test/zig/test.zig"),
@@ -28,7 +28,7 @@ pub fn build(b: *std.Build) void {
     });
     lib_tests_zig.root_module.addImport("rand48", root_module);
 
-    // C-based tests
+    // C-based functional tests
     // OpenGroup C example linked with the pure Zig lib as a drop-in
     const lib_tests_c_opengroup = b.addExecutable(.{
         .name = "test-c-opengroup",
@@ -61,13 +61,21 @@ pub fn build(b: *std.Build) void {
     lib_tests_c_glibc.root_module.linkLibrary(lib);
     b.installArtifact(lib_tests_c_glibc);
 
-    const install_docs = b.addInstallDirectory(.{
-        .source_dir = lib.getEmittedDocs(),
-        .install_dir = .prefix,
-        .install_subdir = "docs",
+    // Burkardt test linked with the pure Zig lib as a drop-in
+    const lib_tests_c_burkardt = b.addExecutable(.{
+        .name = "test-c-burkardt",
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        }),
     });
-    const docs_step = b.step("docs", "Generate HTML documentation");
-    docs_step.dependOn(&install_docs.step);
+    lib_tests_c_burkardt.root_module.addCSourceFile(.{
+        .file = b.path("test/c/test_burkardt.c"),
+        .flags = &[_][]const u8{},
+    });
+    lib_tests_c_burkardt.root_module.linkLibrary(lib);
+    b.installArtifact(lib_tests_c_burkardt);
 
     const lib_tests = b.addTest(.{ .root_module = root_module });
     const install_tests = b.addInstallArtifact(lib_tests, .{});
@@ -84,4 +92,18 @@ pub fn build(b: *std.Build) void {
 
     const run_lib_tests_c_glibc = b.addRunArtifact(lib_tests_c_glibc);
     run_all_tests_step.dependOn(&run_lib_tests_c_glibc.step);
+
+    const run_lib_tests_c_burkardt = b.addRunArtifact(lib_tests_c_burkardt);
+    // Tell the run step to capture stdout and assert it matches the expected file contents
+    run_lib_tests_c_burkardt.expectStdOutEqual(@embedFile("test/c/test_burkardt.txt"));
+    run_all_tests_step.dependOn(&run_lib_tests_c_burkardt.step);
+
+    // Documentation generation
+    const install_docs = b.addInstallDirectory(.{
+        .source_dir = lib.getEmittedDocs(),
+        .install_dir = .prefix,
+        .install_subdir = "docs",
+    });
+    const docs_step = b.step("docs", "Generate HTML documentation");
+    docs_step.dependOn(&install_docs.step);
 }
