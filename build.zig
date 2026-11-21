@@ -31,7 +31,7 @@ pub fn build(b: *std.Build) void {
     // C-based functional tests
     // Windows does not have the rand48 declarations, so add our include file
     const c_flags: []const []const u8 = if (target.result.os.tag == .windows)
-        &[_][]const u8{ "-include", "test/c/windows_rand48.h" }
+        &[_][]const u8{ "-include", "test/c/rand48.h" }
     else
         &[_][]const u8{};
 
