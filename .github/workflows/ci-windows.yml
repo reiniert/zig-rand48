@@ -1,0 +1,9 @@
+name: CI Windows
+on: [push, pull_request]
+
+jobs:
+  ci:
+    name: Build & Test
+    uses: ./.github/workflows/ci.yml
+    with:
+      os: windows-latest

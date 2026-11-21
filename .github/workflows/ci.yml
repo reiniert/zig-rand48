@@ -1,3 +1,20 @@
+name: CI Core
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ${{ inputs.os }}
+    steps:
+      - uses: actions/checkout@v4
+      # Add your build and test steps here
+
+
+
 name: CI
 
 on:
