@@ -178,7 +178,8 @@ const Lcg = struct {
         return self._state.bits;
     }
 
-    /// Query the LCG parameters (state, multiplier, and addend).<br>
+    /// Query the LCG parameters (state, multiplier, and addend).
+    ///
     /// The POSIX functions do not need this, but it seems useful to
     /// have for users of this struct.
     fn getState(self: Lcg) LcgState {
@@ -217,7 +218,8 @@ const Lcg = struct {
 /// POSIX-compliant C ABI for the Rand48 family of functions, with its implementation
 /// provided by the [`Rand`](#Rand) struct in this module. It is usable from within
 /// zig as well, although that does not seem to have any advantage over using the
-/// [`Rand`](#Rand) struct directly.<br>
+/// [`Rand`](#Rand) struct directly.
+///
 /// The public functions on this struct have the following properties:
 /// - All of them operate on a global instance of the Zig Rand48 state.
 ///   - This state is shared across all users of this struct in the same process.
@@ -268,7 +270,8 @@ pub const RandUnderPosixC = struct {
     }
 
     /// Shim for C POSIX-compliant implementation of
-    /// `double drand48(void);`<br>
+    /// `double drand48(void);`
+    ///
     /// Returns a floating-point number in [0.0, 1.0) from the internal LCG state,
     /// updating it in the process.
     pub export fn drand48() f64 {
@@ -276,7 +279,8 @@ pub const RandUnderPosixC = struct {
     }
 
     /// Shim for C POSIX-compliant implementation of
-    /// `double erand48(unsigned short xsubi[3]);`<br>
+    /// `double erand48(unsigned short xsubi[3]);`
+    ///
     /// Returns a floating-point number in [0.0, 1.0) from the given state,
     /// without updating the internal LCG state.
     pub export fn erand48(xsubi: *[3]c_ushort) f64 {
@@ -287,7 +291,8 @@ pub const RandUnderPosixC = struct {
     }
 
     /// Shim for C POSIX-compliant implementation of
-    /// `long int jrand48(unsigned short xsubi[3]);`<br>
+    /// `long int jrand48(unsigned short xsubi[3]);`
+    ///
     /// Returns an integer value in [0, 2³¹) from the given state,
     /// without updating the internal LCG state.
     pub export fn jrand48(xsubi: *[3]c_ushort) c_long {
@@ -298,7 +303,8 @@ pub const RandUnderPosixC = struct {
     }
 
     /// Shim for C POSIX-compliant implementation of
-    /// `long int lrand48(void);`<br>
+    /// `long int lrand48(void);`
+    ///
     /// Returns an integer value in [0, 2³¹) from the internal LCG state,
     /// updating it in the process.
     pub export fn lrand48() c_long {
@@ -306,7 +312,8 @@ pub const RandUnderPosixC = struct {
     }
 
     /// Shim for C POSIX-compliant implementation of
-    /// `long int mrand48(void);`<br>
+    /// `long int mrand48(void);`
+    ///
     /// Returns an integer value in [-2³¹, 2³¹) from the internal LCG state,
     /// updating it in the process.
     pub export fn mrand48() c_long {
@@ -314,7 +321,8 @@ pub const RandUnderPosixC = struct {
     }
 
     /// Shim for C POSIX-compliant implementation of
-    /// `long int nrand48(unsigned short xsubi[3]);`<br>
+    /// `long int nrand48(unsigned short xsubi[3]);`
+    ///
     /// Returns an integer value in [0, 2³¹) from the given state value,
     /// without updating the internal LCG state.
     pub export fn nrand48(xsubi: *[3]c_ushort) c_long {
@@ -328,8 +336,10 @@ pub const RandUnderPosixC = struct {
     var _last_seed_shorts: [3]c_ushort = undefined;
 
     /// Shim for C POSIX-compliant implementation of
-    /// `unsigned short *seed48(unsigned short seed16v[3]);`<br>
-    /// Sets the internal LCG state based on the given seed array.<br>
+    /// `unsigned short *seed48(unsigned short seed16v[3]);`
+    ///
+    /// Sets the internal LCG state based on the given seed array.
+    ///
     /// Note that the returned pointer as well as the provided
     /// seed16v pointer should be considered `const` but we stick with
     /// the original POSIX definition here.
@@ -341,7 +351,8 @@ pub const RandUnderPosixC = struct {
     }
 
     /// Shim for C POSIX-compliant implementation of
-    /// `void srand48(long int seedval);`<br>
+    /// `void srand48(long int seedval);`
+    ///
     /// Sets the internal LCG state based on the given seed value.
     pub export fn srand48(seedval: c_long) void {
         // Only take the 32 low-order bits, as prescribed
@@ -350,9 +361,11 @@ pub const RandUnderPosixC = struct {
     }
 
     /// Shim for C POSIX-compliant implementation of
-    /// `void lcong48(unsigned short param[7]);`<br>
+    /// `void lcong48(unsigned short param[7]);`
+    ///
     /// Sets the internal LCG state and generator parameters based on
-    /// the given array of unsigned shorts.<br>
+    /// the given array of unsigned shorts.
+    ///
     /// Note that the provided seed16v pointer should be considered
     /// `const`, but we stick with the original POSIX definition here.
     pub export fn lcong48(param: *[7]c_ushort) void {
@@ -368,7 +381,8 @@ comptime {
 }
 
 /// An alternative struct for using the Zig-idiomatic interface to the rand48 family of functions,
-/// that forwards all calls to the platform's standard POSIX C rand48 implementation.<br>
+/// that forwards all calls to the platform's standard POSIX C rand48 implementation.
+///
 /// This class is not available on Windows since it does not have the POSIX rand48 functions.
 pub const RandOnPosixC = if (builtin.os.tag != .windows) struct {
     // For the sake of simplicity, define the function prototypes manually here.
